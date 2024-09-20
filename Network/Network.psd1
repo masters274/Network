@@ -52,7 +52,7 @@
 
     # Modules that must be imported into the global environment prior to importing this module
     RequiredModules   = @(
-        @{ModuleName = 'core'; Guid = '7ffd438f-134c-49be-8000-9a9f3af1cbe3'; ModuleVersion = '1.4'; RequiredVersion = $false }
+        @{ModuleName = 'core'; Guid = '7ffd438f-134c-49be-8000-9a9f3af1cbe3'; ModuleVersion = '1.4' }
     )
 
     # Assemblies that must be loaded prior to importing this module
