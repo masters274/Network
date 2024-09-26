@@ -980,7 +980,7 @@ Function Set-WebSecurityProtocol {
     Param
     (
         [Parameter(Mandatory = $true, Position = 0, HelpMessage = 'Select protocols to be enabled')]
-        [ValidateSet('SSLv3', 'TLS1.0', 'TLS1.1', 'TLS1.2')]
+        [ValidateSet('SSLv3', 'TLS1.0', 'TLS1.1', 'TLS1.2','TLS1.3')]
         [String[]] $Protocols,
 
         [Switch] $Append,
@@ -995,6 +995,7 @@ Function Set-WebSecurityProtocol {
         'TLS1.0' = 'Tls'
         'TLS1.1' = 'Tls11'
         'TLS1.2' = 'Tls12'
+        'TLS1.3' = 'Tls13'
     }
 
     $currentProtocols = Get-WebSecurityProtocol
