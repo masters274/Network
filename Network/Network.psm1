@@ -865,10 +865,10 @@ Function Get-WebCertificate {
         This cmdlet retrieves the TLS certificate information from a specified website or system using TCP client.
 
         .EXAMPLE
-        Get-WebCertificate -HostName "example.com"
+        Get-WebCertificate -ComputerName "example.com"
 
         .EXAMPLE
-        Get-WebCertificate -HostName "example.com", "example2.com" -Port 443
+        Get-WebCertificate -ComputerName "example.com", "example2.com" -Port 443
     #>
 
     <#
@@ -880,8 +880,8 @@ Function Get-WebCertificate {
     (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true,
             Position = 0, HelpMessage = 'Name or IP of system')]
-        [Alias("System")]
-        [String[]] $HostName,
+        [Alias('HostName','System')]
+        [String[]] $ComputerName,
         
         [int] $Port = 443
     )
@@ -898,7 +898,7 @@ Function Get-WebCertificate {
         # Variables
         $objCerts = @()
 
-        foreach ($objSystem in $HostName) {
+        foreach ($objSystem in $ComputerName) {
             # Remove http:// or https:// if present
             $objSystem = $objSystem -replace '^https?://', ''
 

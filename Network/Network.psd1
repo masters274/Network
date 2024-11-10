@@ -12,7 +12,7 @@
     RootModule        = 'Network.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '0.9.2.2'
+    ModuleVersion     = '0.9.2.3'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -171,6 +171,9 @@ Version 0.9.2.1
 
 Version 0.9.2.2
 - Function : Changed : Get-WebCertificate. Replaced deprecated [Net.HttpWebRequest] with TcpClient and SslStream.
+
+Version 0.9.2.3
+- Function : Changed : Get-WebCertificate. Updated parameter to more common "ComputerName", moved HostName to an alias.
 '
 
             # External dependent modules of this module
