@@ -858,23 +858,21 @@ function Test-IPAddressIsValid {
 
 Function Get-WebCertificate {
     <#
+        .Synopsis
+        Retrieve the details of a website's TLS certificate
 
-            .Synopsis
-            Retrieve the details of a website's TLS certificate
+        .DESCRIPTION
+        This cmdlet retrieves the TLS certificate information from a specified website or system using TCP client.
 
-            .DESCRIPTION
-            Long description
+        .EXAMPLE
+        Get-WebCertificate -HostName "example.com"
 
-            .EXAMPLE
-            Example of how to use this cmdlet
-
-            .EXAMPLE
-            Another example of how to use this cmdlet
+        .EXAMPLE
+        Get-WebCertificate -HostName "example.com", "example2.com" -Port 443
     #>
 
     <#
-            Version 0.?
-            - ???
+            Version 2.0
     #>
 
     [CmdLetBinding()]
@@ -882,88 +880,74 @@ Function Get-WebCertificate {
     (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true,
             Position = 0, HelpMessage = 'Name or IP of system')]
-        [String[]] $System,
-
+        [Alias("System")]
+        [String[]] $HostName,
+        
         [int] $Port = 443
     )
-
+    
     Begin {
-        # Baseline our environment
+        # Baseline our environment 
         #Invoke-VariableBaseLine
 
         # Debugging for scripts
         $Script:boolDebug = $PSBoundParameters.Debug.IsPresent
     }
-
+    
     Process {
         # Variables
-        [int] $intTimeOutMilliseconds = 2500
         $objCerts = @()
 
+        foreach ($objSystem in $HostName) {
+            # Remove http:// or https:// if present
+            $objSystem = $objSystem -replace '^https?://', ''
 
-        Foreach ($objSystem in $System) {
-            # ensure that workin variables are clean.
-            <#
-                    $request = $null
-                    $cert = $null
-                    $dtExpiration = $null
-                    $certName = $null
-                    $intDaysRemaining = $null
-            #>
+            try {
+                $tcpClient = New-Object System.Net.Sockets.TcpClient($objSystem, $Port)
+                $sslStream = New-Object System.Net.Security.SslStream($tcpClient.GetStream(), $false, 
+                    { param ($certificate, $chain, $sslPolicyErrors)
+                        return $true 
+                    })
+                $sslStream.AuthenticateAsClient($objSystem)
+                $cert = $sslStream.RemoteCertificate
 
-            # Must be working with a string name
-            If ($objSystem -notmatch 'https://') {
-                [URI] $objSystem = 'https://{0}' -f $objSystem
+                if ($cert) {
+                    $certDetails = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($cert)
+
+                    $objBuilder = New-Object -TypeName PSObject
+                    $objBuilder | Add-Member -MemberType NoteProperty -Name 'URI' -Value $objSystem
+                    $objBuilder | Add-Member -MemberType NoteProperty -Name 'Name' -Value $certDetails.GetName()
+                    $objBuilder | Add-Member -MemberType NoteProperty -Name 'CommonName' -Value ($certDetails.Subject -replace '.*CN=', '').Split(',')[0]
+                    $objBuilder | Add-Member -MemberType NoteProperty -Name 'EffectiveDate' -Value $certDetails.NotBefore
+                    $objBuilder | Add-Member -MemberType NoteProperty -Name 'EndDate' -Value $certDetails.NotAfter
+                    $objBuilder | Add-Member -MemberType NoteProperty -Name 'RemainingDays' -Value (($certDetails.NotAfter - (Get-Date)).Days)
+                    $objBuilder | Add-Member -MemberType NoteProperty -Name 'SHA1' -Value $certDetails.GetCertHashString()
+                    $objBuilder | Add-Member -MemberType NoteProperty -Name 'KeyAlgorithm' -Value $certDetails.PublicKey.Oid.FriendlyName
+                    $objBuilder | Add-Member -MemberType NoteProperty -Name 'SerialNumber' -Value $certDetails.SerialNumber
+                    $objBuilder | Add-Member -MemberType NoteProperty -Name 'Subject' -Value $certDetails.Subject
+                    $objBuilder | Add-Member -MemberType NoteProperty -Name 'Issuer' -Value $certDetails.Issuer
+                    $objBuilder | Add-Member -MemberType NoteProperty -Name 'Handle' -Value $certDetails.Handle
+                    $objBuilder | Add-Member -MemberType NoteProperty -Name 'Format' -Value $certDetails.GetFormat()
+
+                    # Append our cert object
+                    $objCerts += $objBuilder
+                }
+                else {
+                    Write-Output "No certificate information was captured for $objSystem."
+                }
+
+                $sslStream.Close()
+                $tcpClient.Close()
             }
-
-            Else {
-
-            }
-
-            # attempt to retrieve the server certificate
-            $request = $null
-            Remove-Variable -Name request -ErrorAction SilentlyContinue
-            $request = [Net.HttpWebRequest]::Create($objSystem)
-            $request.TimeOut = $intTimeOutMilliseconds
-
-            Try {
-                $request.GetResponse()
-            }
-
-            Catch {
-                Write-Debug -Message ('Unable to find {0}' -f $objSystem)
-            }
-
-            If ($request.ServicePoint.Certificate.Subject -ne $null) {
-                $strCertName = $request.ServicePoint.Certificate.GetName()
-                $strCommonName = $strCertName.Split(' ') -Match 'CN=' -replace 'CN='
-                [DateTime]$dtExpiration = $request.ServicePoint.Certificate.GetExpirationDateString()
-                [int]$intDaysRemaining = ($dtExpiration - $(get-date)).Days
-
-                $objBuilder = New-Object -TypeName PSObject
-                $objBuilder | Add-Member -MemberType NoteProperty -Name 'URI' -Value $objSystem
-                $objBuilder | Add-Member -MemberType NoteProperty -Name 'Name' -Value $strCertName
-                $objBuilder | Add-Member -MemberType NoteProperty -Name 'CommonName' -Value $strCommonName
-                $objBuilder | Add-Member -MemberType NoteProperty -Name 'EffectiveDate' -Value $request.ServicePoint.Certificate.GetEffectiveDateString()
-                $objBuilder | Add-Member -MemberType NoteProperty -Name 'EndDate' -Value $request.ServicePoint.Certificate.GetExpirationDateString()
-                $objBuilder | Add-Member -MemberType NoteProperty -Name 'RemainingDays' -Value $intDaysRemaining
-                $objBuilder | Add-Member -MemberType NoteProperty -Name 'SHA1' -Value $request.ServicePoint.Certificate.GetSerialNumberString()
-                $objBuilder | Add-Member -MemberType NoteProperty -Name 'KeyAlgorithm' -Value $request.ServicePoint.Certificate.GetKeyAlgorithm()
-                $objBuilder | Add-Member -MemberType NoteProperty -Name 'SerialNumber' -Value $request.ServicePoint.Certificate.GetSerialNumberString()
-                $objBuilder | Add-Member -MemberType NoteProperty -Name 'Subject' -Value $request.ServicePoint.Certificate.Subject
-                $objBuilder | Add-Member -MemberType NoteProperty -Name 'Issuer' -Value $request.ServicePoint.Certificate.GetIssuerName()
-                $objBuilder | Add-Member -MemberType NoteProperty -Name 'Handle' -Value $request.ServicePoint.Certificate.Handle
-                $objBuilder | Add-Member -MemberType NoteProperty -Name 'Format' -Value $request.ServicePoint.Certificate.GetFormat()
-
-                # Append our cert object
-                $objCerts += $objBuilder
+            catch {
+                Write-Error "Failed to retrieve certificate for $objSystem"
             }
         }
 
         # Return the object of certs
         $objCerts
     }
-
+    
     End {
         # Clean up the environment
         #Invoke-VariableBaseLine -Clean

@@ -12,7 +12,7 @@
     RootModule        = 'Network.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '0.9.2.1'
+    ModuleVersion     = '0.9.2.2'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -168,6 +168,9 @@ Version 0.9.2
 
 Version 0.9.2.1
 - Function : Changed : Set-WebSecurityProtocol. TLS 1.3 protocol added
+
+Version 0.9.2.2
+- Function : Changed : Get-WebCertificate. Replaced deprecated [Net.HttpWebRequest] with TcpClient and SslStream.
 '
 
             # External dependent modules of this module
