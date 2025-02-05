@@ -12,7 +12,7 @@
     RootModule        = 'Network.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '0.9.2.3'
+    ModuleVersion     = '0.9.3.0'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -62,7 +62,7 @@
     ScriptsToProcess  = @('ADNetwork.ps1')
 
     # Type files (.ps1xml) to be loaded when importing this module
-    # TypesToProcess = @()
+    TypesToProcess = @('Network.Classes.ps1')
 
     # Format files (.ps1xml) to be loaded when importing this module
     # FormatsToProcess = @()
@@ -89,7 +89,7 @@
     # ModuleList = @()
 
     # List of all files packaged with this module
-    FileList          = @('Network.psm1', 'Network.psd1', 'ADNetwork.ps1')
+    FileList          = @('Network.psm1', 'Network.psd1', 'ADNetwork.ps1', 'Network.Classes.ps1')
 
     # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
     PrivateData       = @{
@@ -174,6 +174,9 @@ Version 0.9.2.2
 
 Version 0.9.2.3
 - Function : Changed : Get-WebCertificate. Updated parameter to more common "ComputerName", moved HostName to an alias.
+
+Version 0.9.3.0
+- Module : Changed : Class for CIDR IP address calculations moved to classes file for importing purposes.
 '
 
             # External dependent modules of this module
