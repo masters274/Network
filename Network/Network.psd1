@@ -62,7 +62,7 @@
     ScriptsToProcess  = @('ADNetwork.ps1')
 
     # Type files (.ps1xml) to be loaded when importing this module
-    TypesToProcess = @('Network.Classes.ps1')
+    # TypesToProcess = @()
 
     # Format files (.ps1xml) to be loaded when importing this module
     # FormatsToProcess = @()

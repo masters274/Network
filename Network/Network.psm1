@@ -22,6 +22,17 @@
 #>
 
 
+#region Class imports
+
+
+<# Using dot sources to make the classes available upon module import #>
+
+. $PSScriptRoot\Network.Classes.ps1
+
+
+#endregion
+
+
 #region DNS Functions
 
 
