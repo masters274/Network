@@ -12,7 +12,7 @@
     RootModule        = 'Network.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '0.9.3.0'
+    ModuleVersion     = '0.9.3.1'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -89,7 +89,7 @@
     # ModuleList = @()
 
     # List of all files packaged with this module
-    FileList          = @('Network.psm1', 'Network.psd1', 'ADNetwork.ps1', 'Network.Classes.ps1')
+    FileList          = @('Network.psm1', 'Network.psd1', 'ADNetwork.ps1')
 
     # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
     PrivateData       = @{
@@ -177,6 +177,9 @@ Version 0.9.2.3
 
 Version 0.9.3.0
 - Module : Changed : Class for CIDR IP address calculations moved to classes file for importing purposes.
+
+Version 0.9.3.0
+- Module : Changed : Dot sourcing not working. Reverting.
 '
 
             # External dependent modules of this module
